@@ -40,7 +40,7 @@ public class LiveCatchupService {
     }
 
     public void createLinks() {
-        DateTimeFormatter fmt = DateTimeFormat.forPattern("YYYYMMdd_HHmm");
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("YYYYMMdd_HHmmss");
         int linkedFiles = 0;
         for (File f: liveFilesCollection) {
             DateTime lastModified = new DateTime(f.lastModified());

@@ -41,15 +41,28 @@ public class LiveCatchupService {
 
     public void createLinks() {
         DateTimeFormatter fmt = DateTimeFormat.forPattern("YYYYMMdd_HHmm");
+        int linkedFiles = 0;
         for (File f: liveFilesCollection) {
             DateTime lastModified = new DateTime(f.lastModified());
             String linkFileName = "LIVE_" + lastModified.toString(fmt) + ".mp4";
-            System.out.println("Create link from " + livePath + f.getName() + " to " + vodPath + linkFileName);
-            try {
-                Runtime.getRuntime().exec("/bin/ln -s " + livePath + f.getName() + " " + vodPath + linkFileName);
-            } catch (IOException e) {
-                System.out.println("Failed to create link. Reason: " + e.getMessage());
+            File linkFile = new File(vodPath + linkFileName);
+            if (!linkFile.exists()) {
+                System.out.println("[" + DateTime.now() + "]: Creating link from " + livePath + f.getName() + " to " + vodPath + linkFileName);
+                try {
+                    Process p = Runtime.getRuntime().exec("/bin/ln -s " + livePath + f.getName() + " " + vodPath + linkFileName);
+                    p.waitFor();
+                    int exitValue = p.exitValue();
+                    if (exitValue != 0) {
+                        System.out.println("Link command exited with a non-zero exit code: " + exitValue);
+                    }
+                    linkedFiles++;
+                } catch (IOException e) {
+                    System.out.println("Failed to create link. Reason: " + e.getMessage());
+                } catch (InterruptedException e) {
+                    System.out.println("Link command was interrupted: " + e.getMessage());
+                }
             }
         }
+        System.out.println("[" + DateTime.now() + "]: Linked " + linkedFiles + " files");
     }
 }
